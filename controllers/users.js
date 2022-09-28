@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { JWT_SECRET } = require('../utils/secretKey');
+const errorMessage = require('../utils/errorMessages');
 
 const BadRequestError = require('../errors/BadRequestError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
@@ -13,7 +14,7 @@ const ConflictError = require('../errors/ConflictError');
 const getCurrentUser = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
-    .orFail(() => new NotFoundError('Пользователь по заданному id отсутствует в базе'))
+    .orFail(() => new NotFoundError(errorMessage.NOT_FOUND))
     .then((user) => {
       res.send(user.deletePasswordFromUser());
     })
@@ -36,9 +37,9 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+        next(new BadRequestError(errorMessage.BAD_REQUEST));
       } else if (err.name === 'MongoServerError' && err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже существует'));
+        next(new ConflictError(errorMessage.CONFLICT));
       } else {
         next(err);
       }
@@ -49,13 +50,13 @@ const updateProfile = (req, res, next) => {
   const { name, email } = req.body;
   const userId = req.user._id;
   User.findByIdAndUpdate(userId, { name, email }, { new: true, runValidators: true })
-    .orFail(() => new NotFoundError('Пользователь по заданному id отсутствует в базе'))
+    .orFail(() => new NotFoundError(errorMessage.NOT_FOUND))
     .then((user) => {
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+        next(new BadRequestError(errorMessage.BAD_REQUEST));
       } else {
         next(err);
       }
@@ -80,7 +81,7 @@ const login = (req, res, next) => {
         .send({ token });
     })
     .catch(() => {
-      next(new UnauthorizedError('Ошибка авторизации'));
+      next(new UnauthorizedError(errorMessage.UNAUTHORIZED));
     });
 };
 

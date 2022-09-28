@@ -1,4 +1,6 @@
 const Movie = require('../models/movie');
+const errorMessage = require('../utils/errorMessages');
+
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const ForbiddenError = require('../errors/ForbiddenError');
@@ -45,7 +47,7 @@ const createMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные при сохранении фильма'));
+        next(new BadRequestError(errorMessage.BAD_REQUEST));
       } else {
         next(err);
       }
@@ -55,10 +57,10 @@ const createMovie = (req, res, next) => {
 const deleteMovie = (req, res, next) => {
   const { movieId } = req.params;
   Movie.findById(movieId)
-    .orFail(() => new NotFoundError('Фильм по заданному id отсутствует в базе'))
+    .orFail(() => new NotFoundError(errorMessage.NOT_FOUND))
     .then((movie) => {
       if (req.user._id !== movie.owner.toString()) {
-        next(new ForbiddenError('Нельзя удалить фильм другого пользователя'));
+        next(new ForbiddenError(errorMessage.FORBIDDEN));
       } else {
         Movie.deleteOne(movie)
           .then(() => {
@@ -69,7 +71,7 @@ const deleteMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Передан некорректный id фильма'));
+        next(new BadRequestError(errorMessage.BAD_REQUEST));
       } else {
         next(err);
       }
