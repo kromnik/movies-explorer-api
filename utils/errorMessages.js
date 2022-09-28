@@ -1,5 +1,5 @@
 const errorMessage = {
-  SERVER_ERROR: 'Ощибка на сервере',
+  SERVER_ERROR: 'Ошибка на сервере',
   BAD_REQUEST: 'Переданы некорректные данные при запросе',
   UNAUTHORIZED: 'Ошибка авторизации',
   FORBIDDEN: 'Недостаточно прав для данного действия',
