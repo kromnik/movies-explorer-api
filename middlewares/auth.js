@@ -4,11 +4,13 @@ const { JWT_SECRET } = require('../utils/secretKey');
 const errorMessage = require('../utils/errorMessages');
 
 const auth = (req, res, next) => {
-  if (!req.cookies.jwt) {
+  const { authorization } = req.headers;
+
+  if (!authorization || !authorization.startsWith('Bearer ')) {
     next(new UnauthorizedError(errorMessage.UNAUTHORIZED));
   }
 
-  const token = req.cookies.jwt;
+  const token = authorization.replace('Bearer ', '');
   let payload;
 
   try {
