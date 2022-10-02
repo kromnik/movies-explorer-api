@@ -1,5 +1,3 @@
-const { NODE_ENV } = process.env;
-
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
@@ -57,6 +55,8 @@ const updateProfile = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError(errorMessage.BAD_REQUEST));
+      } else if (err.name === 'MongoServerError' && err.code === 11000) {
+        next(new ConflictError(errorMessage.CONFLICT));
       } else {
         next(err);
       }
@@ -72,27 +72,11 @@ const login = (req, res, next) => {
         JWT_SECRET,
         { expiresIn: '7d' },
       );
-      res
-        .cookie('jwt', token, {
-          httpOnly: true,
-          sameSite: false,
-          secure: NODE_ENV === 'production' || false,
-        })
-        .send({ token });
+      res.send({ token });
     })
     .catch(() => {
       next(new UnauthorizedError(errorMessage.UNAUTHORIZED));
     });
-};
-
-const signOut = (req, res) => {
-  res
-    .clearCookie('jwt', {
-      httpOnly: true,
-      sameSite: false,
-      secure: NODE_ENV === 'production' || false,
-    })
-    .send({ message: 'Выход' });
 };
 
 module.exports = {
@@ -100,5 +84,4 @@ module.exports = {
   createUser,
   updateProfile,
   login,
-  signOut,
 };
