@@ -23,6 +23,8 @@ app.use(
     origin: [
       'http://movies-explorer.kiro.nomorepartiesxyz.ru',
       'https://movies-explorer.kiro.nomorepartiesxyz.ru',
+      'http://localhost:3010',
+      'https://localhost:3010',
     ],
     methods: ['GET', 'PUT', 'PATCH', 'POST', 'DELETE'],
     preflightContinue: false,

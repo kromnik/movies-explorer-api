@@ -44,7 +44,7 @@ const createMovie = (req, res, next) => {
     owner,
   })
     .then((movie) => {
-      res.send({ data: movie });
+      res.send(movie);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
